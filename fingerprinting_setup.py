@@ -10,6 +10,9 @@ import progressbar
 #CS 5080
 #4/27/2025
 #Initial code written by chatGPT. Heavily modified by Anderson Worcester
+
+#project 3 - part of deliverable 1 code
+
 def sieve(n):
     """
     Generate list of primes up to n using the Sieve of Eratosthenes.
@@ -23,7 +26,7 @@ def sieve(n):
     return [i for i, is_prime in enumerate(sieve) if is_prime]
 
 
-# Precompute primes up to (10,000)^2 for the first part of the assignment
+# Precompute primes up to (1,000)^2 for the first part of the assignment
 MAX_N = 1000
 _primes = sieve(MAX_N**2)
 
@@ -112,6 +115,62 @@ def empirical_false_positive(n, trials=10000):
         return no_parity_rate, parity_1_rate, parity_2_rate, parity_4_rate, avg_no_parity_size, avg_parity_1_size, avg_parity_2_size, avg_parity_4_size, data_size
 
 
+
+def empirical_false_positive_remainder_experiment(n, trials=10000):
+    """
+    Empirically estimate the false positive rate by simulating the fingerprint test
+    with x = 0 and y = K (constructed adversarially) for a number of trials.
+    """
+    # primes in (n, n^2]
+    lo = bisect.bisect_right(_primes, n - 1)
+    hi = bisect.bisect_right(_primes, n * n)
+    primes_range = _primes[lo:hi]
+
+    # build adversarial K factors (same as theoretical selection)
+    mult_total = 1
+    mult_total_remainder = 1
+    for p in primes_range:
+        if mult_total_remainder * p * 2 < 2**n:
+            mult_total_remainder = mult_total_remainder * p
+        else:
+            break
+
+    for p in primes_range:
+        if mult_total * p < 2**n:
+            mult_total = mult_total * p
+        else:
+            break
+
+    # mult total is Alice's "Y" that the adversary gives her to then send, but Alice still has control of "p" and parity
+    y_remainder = mult_total_remainder * 2 # Adversary does this is so that the remainder to X and Y is even for both
+    y_reg = mult_total
+    fp_count_no_remainder = 0
+    fp_count_1_remainder = 0
+
+    for _ in range(trials):
+        p = random.choice(primes_range)
+        hash_remainder = y_remainder % p
+        hash_normal = y_reg % p
+        p_1 = p * 2 + y_remainder % 2
+
+        # Bob is then given (by the adversary) X = 0. Bob knows the parity (pre communicated) and tries to decode and check.
+        if hash_normal == 0:
+            fp_count_no_remainder += 1
+
+        remainder = y_remainder % 2
+        if hash_remainder == 0 and remainder == 0:
+            fp_count_1_remainder += 1
+
+    # After trials are over:
+    if trials == 0:
+        return 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+    else:
+        no_remainder_rate = fp_count_no_remainder / trials
+        remainder_1_rate = fp_count_1_remainder / trials
+
+        return no_remainder_rate, remainder_1_rate
+
+
 def run_fingerprint_experiments(n_min=6, n_max=1000, trials=10000):
     """
     Run both theoretical and empirical experiments for n in [n_min..n_max]
@@ -174,7 +233,46 @@ def run_fingerprint_experiments(n_min=6, n_max=1000, trials=10000):
     plt.tight_layout()
     plt.show()
 
+def run_remainder_experiment(n_min=6, n_max=1000, trials=10000):
+    """
+    This experiment shows what happens if Alice sent 1 extra bit with each "p" as the remainder of her "Y" value.
+    The advesary ensures that Y and X both have a remainder of "0" by doubling the size of "Y". However, the adversary
+    sometimes chooses less multiples of primes when forming this number to stay within the size constraints of 2**n
+    :param n_min: smallest n value to run
+    :param n_max: max n value to end at
+    :param trials: for each n, average accross how many trials.
+    :return: None
+    """
+
+
+    ns = list(range(n_min, n_max + 1))
+    no_remainder_rate_array = []
+    remainder_1_rate_array = []
+
+    bar = progressbar.ProgressBar(max_value=len(ns))
+
+    for ix, n in enumerate(ns):
+        no_remainder_rate, remainder_1_rate = empirical_false_positive_remainder_experiment(
+            n, trials)
+        no_remainder_rate_array.append(no_remainder_rate)
+        remainder_1_rate_array.append(remainder_1_rate)
+
+        bar.update(ix + 1)
+
+    plt.figure()
+    plt.plot(ns, no_remainder_rate_array, label=f'Regular Fingerprinting, ({trials} trials)', linewidth=2)
+    plt.plot(ns, remainder_1_rate_array, label=f'1-bit remainder added, ({trials} trials)', linewidth=1)
+    plt.xlabel('n')
+    plt.ylabel('Experimental False positive rate')
+    plt.title('Fingerprinting: False Positive Rate')
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+
 if __name__ == '__main__':
     # Part 1 & 2: plot theoretical and empirical false positive rates for n=6..1000
-    run_fingerprint_experiments()
+    # run_fingerprint_experiments()
+    run_remainder_experiment()
 

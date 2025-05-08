@@ -81,8 +81,8 @@ assert all(miller_rabin(p, bases=[2,7,61]) for p in test_primes)
 assert all(not miller_rabin(c, bases=[2,7,61]) for c in test_composites)
 
 # 4. Task 1: false-positive rolling average
-max_n = 1_000_000
-window = 10_000
+max_n = 10_000_000
+window = 100_000
 fps = []  # 1 if false positive at n, else 0
 ns = []
 for n in range(100, max_n+1):
@@ -90,7 +90,7 @@ for n in range(100, max_n+1):
         # skip true primes
         fps.append(0)
     else:
-        fps.append(1 if miller_rabin(n, bases=[2]) else 0) # ,7,61
+        fps.append(1 if miller_rabin(n, bases=[2,7,61]) else 0) # ,7,61
     ns.append(n)
 
 # compute rolling average
@@ -109,7 +109,7 @@ plt.figure()
 plt.plot(ns, rolling)
 plt.xlabel("n")
 plt.ylabel(f"False-positive rate (window={window})")
-plt.title("Rolling false-positive rate of Miller–Rabin (bases [2,7,61])")
+plt.title("Rolling false-positive rate of Miller–Rabin (bases [2, 7, 61])") #try just [2] also
 plt.tight_layout()
 plt.show()
 
@@ -166,8 +166,13 @@ for a, cnt in sorted(false_counts_all.items(), key=lambda x: x[1][2], reverse=Tr
 
 #plot false counts of "A" across the 3 ranges of n to see change/trajectory:
 plt.figure()
+plot_count = 0
 for a, cnt in sorted(false_counts_all.items(), key=lambda x: x[0], reverse=True):
-    plt.plot([int(max_n/100), int(max_n/10), max_n], cnt, label=f"Base 'A' = {a}")
+    line_type = "-"
+    if plot_count % 2 == 0:
+        line_type = "--"
+    plot_count += 1
+    plt.plot([int(max_n/100), int(max_n/10), max_n], cnt, label=f"Base 'A' = {a}", linestyle=line_type)
 plt.xscale('log')
 plt.xlabel("n (log scale)")
 plt.ylabel(f"FPs by Base 'A's chosen")
@@ -178,5 +183,35 @@ plt.show()
 
 
 #plot which composite numbers have the most liars
-for n, cnt in sorted(liars_ranking.items(), key=lambda x: x[1], reverse=True):
+for n, cnt in sorted(liars_ranking.items(), key=lambda x: x[1], reverse=False):
     print(f"liar n= {n}, cheating {cnt} of the 'A' bases out of {len(bases_to_test)} possible bases")
+
+all_dicts = []
+
+biggest = 0
+for n, cnt in sorted(liars_ranking.items(), key=lambda x: x[1], reverse=True):
+    biggest = cnt
+    break
+
+for i in range(biggest):
+    filtered_dict = dict(filter(lambda x: x[1] == i+1, liars_ranking.items()))
+    all_dicts.append(len(filtered_dict))
+
+
+categories = list(range(1, biggest + 1))
+values = all_dicts
+
+# Create the bar plot
+plt.bar(categories, values, color='skyblue')
+
+# Add labels and title
+plt.xlabel(f"Number of times a Liar Lies out of {len(bases_to_test)} bases")
+plt.ylabel(f'The Amount of Liars found, 0 to "n" = {max_n}')
+plt.title('Showing Liars That Lie Multiple Times')
+
+# Add value labels on top of bars
+for index, value in enumerate(values):
+    plt.text(index + 1, value + 0.5, str(value), ha='center', va='center')
+
+# Show the plot
+plt.show()

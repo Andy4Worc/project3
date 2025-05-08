@@ -1,25 +1,25 @@
+#CS 5080
+#project 3 - code used in deliverable 1
+#5/4/2025
 
+#Author: Anderson (Andy) Worcester, with a minor function here
 """
+Plan:
 Implement 3 ECCs:
 1. Add one bit parity at the end of the fingerprint sent that is based on "Y"s parity, not the parity of the
-2. Add 4 bit parity at the end of the fingerprint sent.
-3. Have Hamming Codes Sent.
-And see results.
+2. Add 2 and 4 bit parity at the end of the fingerprint sent.
+Make examples and visually check results.
 
-Analyze to see "what" the attacker should do differently to try to spoof it. And see results
+Analyze to see "what" the attacker/adversary should do differently to try to spoof it.
+Ans: the attacker could pick "Y" to have a parity of 1s % 16 = 0. However, I don't need to
+  implement this to prove the adversary could do well here....
 
-Add noise and see results.
+Doing "remainder" would be a stronger attack than parity bits. The adversary wants to pick "Y" to be an odd
+  number. However, sending the remainder bit would force the adversary against this, greatly weakening its approach.
+
 """
 
 def count_bits(n):
-  """Counts the number of set bits (1s) in an integer.
-
-  Args:
-    n: The integer to count set bits in.
-
-  Returns:
-    The number of set bits in n.
-  """
   count = 0
   while n:
     n = n >> 1
@@ -34,6 +34,8 @@ def count_set_bits(n):
 
   Returns:
     The number of set bits in n.
+
+  Author: this function written by chatGPT
   """
   count = 0
   while n:
