@@ -1,4 +1,10 @@
-# Task 1 & 2: Miller–Rabin implementation, testing, plotting, and base‐impact analysis
+#5/4/2025
+#For CS 5080, SP2025
+#Author: Base code originally made by chatGPT. Andy Worcester then modified, expanded and added the experiments and additional
+  # plotting.
+
+
+# Miller–Rabin implementation, testing, plotting, and base‐impact analysis experiments:
 
 import math
 import random
@@ -6,7 +12,7 @@ from collections import defaultdict, deque
 import matplotlib.pyplot as plt
 import progressbar
 
-# 1. Generate prime list via sieve (100–1_000_000)
+# 1. Generate prime list via sieve of Eratosthenes (100–1_000_000)
 def sieve(n):
     sieve = [True] * (n+1)
     sieve[0:2] = [False, False]

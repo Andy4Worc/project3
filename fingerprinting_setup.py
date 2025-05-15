@@ -9,7 +9,7 @@ import progressbar
 
 #CS 5080
 #4/27/2025
-#Initial code written by chatGPT. Heavily modified by Anderson Worcester
+#Initial code written by chatGPT. Heavily modified and expanded by Anderson Worcester
 
 #project 3 - part of deliverable 1 code
 
@@ -171,7 +171,7 @@ def empirical_false_positive_remainder_experiment(n, trials=10000):
         return no_remainder_rate, remainder_1_rate
 
 
-def run_fingerprint_experiments(n_min=6, n_max=1000, trials=10000):
+def run_fingerprint_experiments(n_min=6, n_max=1000, trials=100):
     """
     Run both theoretical and empirical experiments for n in [n_min..n_max]
     and plot the results on the same matplotlib figure.
@@ -208,10 +208,10 @@ def run_fingerprint_experiments(n_min=6, n_max=1000, trials=10000):
         bar.update(ix + 1)
 
     plt.figure()
-    plt.plot(ns, no_parity_rate_array, label=f'No parity, ({trials} trials)', linewidth=2)
+    plt.plot(ns, no_parity_rate_array, label=f'No parity, ({trials} trials)', linewidth=1)
     plt.plot(ns, parity_1_rate_array, label=f'1-bit parity, ({trials} trials)', linewidth=1)
-    plt.plot(ns, parity_2_rate_array, label=f'2-bit parity, ({trials} trials)', linewidth=0.7)
-    plt.plot(ns, parity_4_rate_array, label=f'4-bit parity, ({trials} trials)', linewidth=0.4)
+    plt.plot(ns, parity_2_rate_array, label=f'2-bit parity, ({trials} trials)', linewidth=1)
+    plt.plot(ns, parity_4_rate_array, label=f'4-bit parity, ({trials} trials)', linewidth=1)
     plt.xlabel('n')
     plt.ylabel('Experimental False positive rate')
     plt.title('Fingerprinting: False Positive Rate, X/Y Parity Checked')
@@ -232,6 +232,11 @@ def run_fingerprint_experiments(n_min=6, n_max=1000, trials=10000):
     plt.grid(True)
     plt.tight_layout()
     plt.show()
+    print(data_size_array)
+    print()
+    print(avg_no_parity_size_array)
+    print(avg_parity_2_size_array)
+    print(avg_parity_4_size_array)
 
 def run_remainder_experiment(n_min=6, n_max=1000, trials=10000):
     """
@@ -273,6 +278,6 @@ def run_remainder_experiment(n_min=6, n_max=1000, trials=10000):
 
 if __name__ == '__main__':
     # Part 1 & 2: plot theoretical and empirical false positive rates for n=6..1000
-    # run_fingerprint_experiments()
+    run_fingerprint_experiments()
     run_remainder_experiment()
 

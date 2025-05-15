@@ -2,7 +2,7 @@
 #project 3 - code used in deliverable 1
 #5/4/2025
 
-#Author: Anderson (Andy) Worcester, with a minor function here
+#Author: Anderson (Andy) Worcester, with only a minor function here written by chatGPT
 """
 Plan:
 Implement 3 ECCs:
